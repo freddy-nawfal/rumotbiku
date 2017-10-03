@@ -1,20 +1,20 @@
 module.exports = {
-  Word = class{
+  Word : class{
     constructor() {
       this.word = this.generateWord();
-      this.generatedTime = date.now();
+      this.generatedTime = Date.now();
     }
     generateWord(){
       return "bonjour";
     }
   },
 
-  Player = class{
+  Player : class{
     constructor(pseudo) {
-      this.id = generateId();
+      this.id = this.generateId();
       if(!pseudo)this.pseudo = "Random Player";
       else this.pseudo = verifyPseudo(pseudo);
-      this.game = NULL;
+      this.game = undefined;
     }
 
     generateId(){
@@ -22,18 +22,18 @@ module.exports = {
     }
   },
 
-  Game = class{
+  Game : class{
     constructor(){
-      this.room = NULL;
+      this.room = undefined;
       this.score = 0;
       this.status = "player"; // ou master
     }
   },
 
-  Room = class{
+  Room : class{
     constructor(){
-      this.roomid = NULL;
-      this.currentWord = NULL;
+      this.roomid = undefined;
+      this.currentWord = undefined;
     }
   }
 }
