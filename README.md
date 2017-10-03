@@ -1,3 +1,2 @@
 # rumotbiku
-ok
-ca marche frrr!
+jeu de recherche de mot inspiré de lexiflaire
