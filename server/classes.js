@@ -32,8 +32,12 @@ module.exports = {
 
   Room : class{
     constructor(){
-      this.roomid = undefined;
+      this.roomid = this.generateRoomId();
       this.currentWord = undefined;
+    }
+
+    generateRoomId(){
+      return "1244556";
     }
   }
 }
