@@ -1,4 +1,3 @@
-var uuid = require('uuid');
 var randomstring = require("randomstring");
 
 
@@ -14,15 +13,11 @@ module.exports = {
   },
 
   Player : class{
-    constructor(pseudo) {
-      this.id = this.generateId();
+    constructor(pseudo, id) {
+      this.id = id;//this.generateId();
       if(!pseudo)this.pseudo = "Random Player";
       else this.pseudo = verifyPseudo(pseudo);
       this.game = undefined; // game de type Game
-    }
-
-    generateId(){
-      return uuid.v4();
     }
   },
 

@@ -20,13 +20,12 @@ var players = {};
 var rooms = {};
 
 io.on('connection', function (socket) {
-  var newPlayer = new classes.Player();
-  socket.playerID = newPlayer.id;
+  var newPlayer = new classes.Player(false, socket.id);
   players[newPlayer.id] = newPlayer;
 
 
   socket.on("createRoom", function(){
-    var playerIndex = socket.playerID;
+    var playerIndex = socket.id;
     if(players[playerIndex].game == undefined){
       //creation de la room
       var room = new classes.Room();
@@ -50,7 +49,7 @@ io.on('connection', function (socket) {
   });
   socket.on("joinRoom", function(data){
 //tester si data a un format correct
-var playerIndex = socket.playerID;
+var playerIndex = socket.id;
   if(playerIndex){
     if(players[playerIndex].game == undefined){
       //rejoindre la room
@@ -98,14 +97,14 @@ function quitGame(p){
 
 function deleteUser(s){
   testRoom(s);
-  delete players[s.playerID];
+  delete players[s.id];
   console.log(rooms);
 }
 
 
 function testRoom(s){
-  if(players[s.playerID].game){
-    var room = rooms[players[s.playerID].game.room];
+  if(players[s.id].game){
+    var room = rooms[players[s.id].game.room];
     var playersInRoom = getPlayersByRoomId(room.roomid);
     if(playersInRoom.length <= 1){
       delete rooms[room.roomid];
