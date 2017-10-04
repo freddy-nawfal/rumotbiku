@@ -40,10 +40,11 @@ module.exports = {
       this.currentWord = undefined; // mot actuel (de type Word)
       this.guesserID = undefined; // id du joueur qui fait deviner
       this.createdOn = Date.now();
+      this.public = false;
     }
 
     generateRoomId(){
-      return randomstring.generate(7);
+      return (randomstring.generate(7)).toUpperCase();
     }
   }
 }

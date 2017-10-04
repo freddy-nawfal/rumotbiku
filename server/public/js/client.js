@@ -9,3 +9,7 @@ $("#roomcode").submit(function(e){
   socket.emit('joinRoom', $("#codeid").val());
   e.preventDefault();
 });
+
+socket.on("joinedRoom", function(id) {
+  console.log("Joined room: "+id);
+});

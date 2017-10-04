@@ -39,6 +39,9 @@ io.on('connection', function (socket) {
       console.log(players[playerIndex]);
 
       //ICI TRANSITIONNER LE JOUEUR VERS SA ROOM
+
+      socket.emit("joinedRoom", room.roomid);
+
     }
     else{
       //afficher message d'erreur
@@ -57,6 +60,10 @@ var playerIndex = socket.playerID;
         players[playerIndex].game = game;
 
         console.log(players[playerIndex]);
+
+        //ICI TRANSITIONNER LE JOUEUR VERS LA ROOM
+
+        socket.emit("joinedRoom", game.room);
       }
       else{
         console.log("Tentative de room non existante");
