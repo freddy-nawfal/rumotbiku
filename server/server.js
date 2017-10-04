@@ -30,9 +30,8 @@ io.on('connection', function (socket) {
     if(players[playerIndex].game == undefined){
       //creation de la room
       var room = new classes.Room();
-      var game = new classes.Game();
+      var game = new classes.Game('master');
       game.room = room.roomid;
-      game.status = 'master';
 
       players[playerIndex].game = game;
 
@@ -49,7 +48,7 @@ io.on('connection', function (socket) {
     if(players[playerIndex].game == undefined){
       //rejoindre la room
       if(rooms[data]){
-        var game = new classes.Game();
+        var game = new classes.Game('player');
         game.room = data;
         players[playerIndex].game = game;
       }

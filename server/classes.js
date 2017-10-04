@@ -16,7 +16,7 @@ module.exports = {
       this.id = this.generateId();
       if(!pseudo)this.pseudo = "Random Player";
       else this.pseudo = verifyPseudo(pseudo);
-      this.game = undefined;
+      this.game = undefined; // game de type Game
     }
 
     generateId(){
@@ -25,17 +25,19 @@ module.exports = {
   },
 
   Game : class{
-    constructor(){
-      this.room = undefined;
+    constructor(status){
+      this.room = undefined; // id de la room
       this.score = 0;
-      this.status = "player"; // ou master
+      this.status = status; // ou master
     }
   },
 
   Room : class{
     constructor(){
       this.roomid = this.generateRoomId();
-      this.currentWord = undefined;
+      this.currentWord = undefined; // mot actuel (de type Word)
+      this.guesserID = undefined; // id du joueur qui fait deviner
+      this.createdOn = Date.now();
     }
 
     generateRoomId(){
