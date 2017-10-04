@@ -17,6 +17,7 @@ var express = require('express');
 
 
 var players = {};
+var rooms = {};
 
 io.on('connection', function (socket) {
   var newPlayer = new classes.Player();
@@ -45,9 +46,13 @@ io.on('connection', function (socket) {
     }
   });
   socket.on("joinRoom", function(data){
-    if(this.game == undefined){
+    if(players[playerIndex].game == undefined){
       //rejoindre la room
-
+      if(rooms[data]){
+        var game = new classes.Game();
+        game.room = data;
+        players[playerIndex].game = game;
+      }
     }
     else{
       //afficher message d'erreur
