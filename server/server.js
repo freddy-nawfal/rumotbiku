@@ -20,9 +20,7 @@ var players = {};
 var rooms = {};
 
 io.on('connection', function (socket) {
-  var newPlayer = new classes.Player();
-  socket.playerID = newPlayer.id;
-  players[newPlayer.id] = newPlayer;
+  createPlayer(socket);
 
 
   socket.on("createRoom", function(){
@@ -45,6 +43,8 @@ io.on('connection', function (socket) {
     }
   });
   socket.on("joinRoom", function(data){
+//tester si data a un format correct
+  if(playerIndex != NULL){
     if(players[playerIndex].game == undefined){
       //rejoindre la room
       if(rooms[data]){
@@ -54,8 +54,15 @@ io.on('connection', function (socket) {
       }
     }
     else{
-      //afficher message d'erreur
+      //message d'erreur et demande d'autorisation de changer de game
+      console.log("Joueur deja dans une game.\nVoulez vous quitter cette game ?\n(fonction a faire)"
+      //demande de oui ou non
     }
+  else{
+    createPlayer(socket);
+    console.log("joueur créé.");
+  }
+  }
   });
 
   socket.on('disconnect', function(){
@@ -69,6 +76,17 @@ io.on('connection', function (socket) {
 server.listen(8000);
 
 
+function createPlayer(s){
+  var newPlayer = new classes.Player();
+  s.playerID = newPlayer.id;
+  players[newPlayer.id] = newPlayer;
+}
+
+function quitGame(p){
+  if(players[playerIndex].game != undefined){
+
+  }
+}
 
 function deleteUser(s){
   delete players[s.playerID];

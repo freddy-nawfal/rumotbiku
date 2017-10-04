@@ -28,7 +28,7 @@ module.exports = {
     constructor(status){
       this.room = undefined; // id de la room
       this.score = 0;
-      this.status = status; // ou master
+      this.status = status;
     }
   },
 
