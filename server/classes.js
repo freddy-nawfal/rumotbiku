@@ -1,3 +1,5 @@
+var uuid = require('uuid');
+
 module.exports = {
   Word : class{
     constructor() {
@@ -18,7 +20,7 @@ module.exports = {
     }
 
     generateId(){
-      return "15235";
+      return uuid.v4();
     }
   },
 
@@ -37,7 +39,7 @@ module.exports = {
     }
 
     generateRoomId(){
-      return "1244556";
+      return uuid.v4();
     }
   }
 }

@@ -5,6 +5,8 @@ var express = require('express');
  var io = require('socket.io')(server);
  var classes = require("./classes.js");
 
+
+
  var publicPath = path.resolve(__dirname, 'public');
 
 
@@ -14,16 +16,16 @@ var express = require('express');
  });
 
 
-var players = [];
+var players = {};
 
 io.on('connection', function (socket) {
   var newPlayer = new classes.Player();
   socket.playerID = newPlayer.id;
-  players.push(newPlayer);
+  players[newPlayer.id] = newPlayer;
 
 
   socket.on("createRoom", function(){
-    var playerIndex = searchPlayerById(socket.playerID);
+    var playerIndex = socket.playerID;
     if(players[playerIndex].game == undefined){
       //creation de la room
       var room = new classes.Room();
@@ -51,6 +53,10 @@ io.on('connection', function (socket) {
       //afficher message d'erreur
     }
   });
+
+  socket.on('disconnect', function(){
+    deleteUser(socket);
+  });
 });
 
 
@@ -60,11 +66,6 @@ server.listen(8000);
 
 
 
-
-
-function searchPlayerById(playerID){
-  for (var i = 0; i < players.length; i++) {
-    if(players[i].id == playerID) return i;
-  }
-  return undefined;
+function deleteUser(s){
+  delete players[s.playerID];
 }
