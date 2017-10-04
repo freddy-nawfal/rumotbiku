@@ -3,3 +3,9 @@ socket.on('news', function (data) {
   console.log(data);
   socket.emit('my other event', { my: 'data' });
 });
+
+
+$("#roomcode").submit(function(e){
+  socket.emit('joinRoom', $("#codeid").val());
+  e.preventDefault();
+});
