@@ -1,4 +1,6 @@
 var uuid = require('uuid');
+var randomstring = require("randomstring");
+
 
 module.exports = {
   Word : class{
@@ -41,7 +43,7 @@ module.exports = {
     }
 
     generateRoomId(){
-      return uuid.v4();
+      return randomstring.generate(7);
     }
   }
 }
