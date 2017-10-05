@@ -26,16 +26,19 @@ module.exports = {
       this.room = undefined; // id de la room
       this.score = 0;
       this.status = status;
+      this.ready = false;
     }
   },
 
   Room : class{
-    constructor(){
+    constructor(rounds){
       this.roomid = this.generateRoomId();
       this.currentWord = undefined; // mot actuel (de type Word)
       this.guesserID = undefined; // id du joueur qui fait deviner
       this.createdOn = Date.now();
       this.public = false;
+      this.started = false;
+      this.rounds = rounds;
     }
 
     generateRoomId(){

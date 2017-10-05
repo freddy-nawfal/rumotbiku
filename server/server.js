@@ -20,13 +20,15 @@ var players = {};
 var rooms = {};
 
 io.on('connection', function (socket) {
+  // On instancie le nouveau joueur
   var newPlayer = new classes.Player(false, socket.id);
   players[newPlayer.id] = newPlayer;
 
 
+  // Event de creation de room
   socket.on("createRoom", function(){
     var playerIndex = socket.id;
-    if(players[playerIndex].game == undefined){
+    if(players[playerIndex].game == undefined){ //s'il n'est pas dans une game
       //creation de la room
       var room = new classes.Room();
       var game = new classes.Game('master');
@@ -42,7 +44,7 @@ io.on('connection', function (socket) {
       socket.emit("joinedRoom", room.roomid);
 
     }
-    else{
+    else{ // s'il est déjà dans une game
       //afficher message d'erreur
       console.log("Joueur deja dans une game");
     }
@@ -51,7 +53,7 @@ io.on('connection', function (socket) {
 //tester si data a un format correct
 var playerIndex = socket.id;
   if(playerIndex){
-    if(players[playerIndex].game == undefined){
+    if(players[playerIndex].game == undefined){//s'il n'est pas dans une game
       //rejoindre la room
       if(rooms[data]){
         var game = new classes.Game('player');
@@ -68,14 +70,14 @@ var playerIndex = socket.id;
         console.log("Tentative de room non existante");
       }
     }
-    else{
+    else{// s'il est déjà dans une game
       //message d'erreur et demande d'autorisation de changer de game
-      console.log("Joueur deja dans une game.\nVoulez vous quitter cette game ?\n(fonction a faire)");
-      //demande de oui ou non
+      console.log("Joueur deja dans une game.");
     }
   }
   else{
     console.log("bug.");
+    forceDisconnect(socket);
   }
   });
 
@@ -85,14 +87,13 @@ var playerIndex = socket.id;
 });
 
 
-
-
 server.listen(8000);
 
-function quitGame(p){
-  if(players[playerIndex].game != undefined){
 
-  }
+// fonctions utilitaires
+function forceDisconnect(socket){
+  socket.emit("forceDisconnect");
+  socket.disconnect();
 }
 
 function deleteUser(s){
@@ -120,4 +121,28 @@ function getPlayersByRoomId(id){
     }
   });
   return playerList;
+}
+
+function startRound(roomid){
+  if(rooms[roomid].rounds > 0){
+    switchTurns(roomid);
+    //emit round status to all players
+    //emit word to guesser
+  }
+  else{
+    //end game
+    //display scores
+  }
+}
+
+function switchTurns(roomid){
+  var playersInRoom = getPlayersByRoomId(roomid);
+  rooms[roomid].guesserID = (getRandomPlayer(playersInRoom)).id;
+  rooms[roomid].currentWord = new Word();
+  rooms[roomid].rounds--;
+}
+
+function getRandomPlayer(ListOfPlayers){
+  var random = Math.floor(Math.random() * (ListOfPlayers.length-1)) + 1;
+  return players[ListOfPlayers[random]];
 }
