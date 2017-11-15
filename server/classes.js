@@ -15,9 +15,17 @@ module.exports = {
   Player : class{
     constructor(pseudo, id) {
       this.id = id;//this.generateId();
-      if(!pseudo)this.pseudo = "Random Player";
-      else this.pseudo = verifyPseudo(pseudo);
+      if(!pseudo)this.pseudo = "Player_"+randomstring.generate(7);
+      else this.pseudo = this.verifyPseudo(pseudo);
       this.game = undefined; // game de type Game
+    }
+
+    verifyPseudo(p){
+      return p;
+    }
+
+    setPseudo(p){
+      this.pseudo = this.verifyPseudo(p);
     }
   },
 

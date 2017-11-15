@@ -23,8 +23,13 @@ io.on('connection', function (socket) {
   // On instancie le nouveau joueur
   var newPlayer = new classes.Player(false, socket.id);
   players[newPlayer.id] = newPlayer;
+  socket.emit("hello", {id: newPlayer.id});
   socket.emit("roomControl");
 
+  socket.on('pseudo', function(p){
+    players[socket.id].setPseudo(p);
+    socket.emit("changedPseudo", p);
+  });
 
   // Event de creation de room
   socket.on("createRoom", function(){
@@ -38,18 +43,19 @@ io.on('connection', function (socket) {
 
       players[playerIndex].game = game;
 
-      console.log(players[playerIndex]);
-
       //Transition du joueur dans sa room
 
       socket.emit("createdRoom", room.roomid);
-
+      socket.emit("newPlayerInRoom", returnSafePlayer(playerIndex));
     }
     else{ // s'il est déjà dans une game
       //afficher message d'erreur
       console.log("Joueur deja dans une game");
     }
   });
+
+
+
   socket.on("joinRoom", function(data){
 //tester si data a un format correct
 var playerIndex = socket.id;
@@ -60,11 +66,12 @@ var playerIndex = socket.id;
         var game = new classes.Game('player');
         game.room = data;
         players[playerIndex].game = game;
-        //Transition du joueur dans sa room
-        socket.emit("joinedRoom", game.room);
 
         //On informe les autres joueurs
-        emitToAllPlayersInRoom(game.room, "newPlayerInRoom", players[playerIndex].id)
+        broadcastToAllPlayersInRoom(playerIndex, rooms[game.room], "newPlayerInRoom", returnSafePlayer(playerIndex));
+
+        //Transition du joueur dans sa room
+        socket.emit("joinedRoom", {room: game.room, players: returnAllPlayersInRoomSafe(game.room)});
       }
       else{
         console.log("Tentative de room non existante");
@@ -103,13 +110,19 @@ function deleteUser(s){
 
 function testRoomAndQuit(s){
   if(players[s.id].game){
-    var room = rooms[players[s.id].game.room];
-    var playersInRoom = getPlayersByRoomId(room.roomid);
-    for(i=0; i<playersInRoom.length; i++){
-      players[playersInRoom[i]].game = undefined;
-      io.to(players[playersInRoom[i]].id).emit("quitRoom");
+    if(players[s.id].game.status == 'master'){
+      var room = rooms[players[s.id].game.room];
+      var playersInRoom = getPlayersByRoomId(room.roomid);
+      for(i=0; i<playersInRoom.length; i++){
+        players[playersInRoom[i]].game = undefined;
+        io.to(players[playersInRoom[i]].id).emit("quitRoom");
+      }
+      delete rooms[room.roomid];
     }
-    delete rooms[room.roomid];
+    else{
+      emitToAllPlayersInRoom(rooms[players[s.id].game.room], "playerLeftRoom", players[s.id].id);
+      players[s.id].game == undefined;
+    }
   }
 }
 
@@ -123,6 +136,20 @@ function emitToAllPlayersInRoom(room, eventName, options){
   }
 }
 
+function broadcastToAllPlayersInRoom(myid, room, eventName, options){
+  var playersInRoom = getPlayersByRoomId(room.roomid);
+  for(i=0; i<playersInRoom.length; i++){
+    if(players[playersInRoom[i]].id != myid){
+      if(options)
+        io.to(players[playersInRoom[i]].id).emit(eventName, options);
+      else
+        io.to(players[playersInRoom[i]].id).emit(eventName);
+    }
+  }
+}
+
+
+
 function getPlayersByRoomId(id){
   var playerList = [];
   Object.keys(players).forEach(function(key) {
@@ -132,6 +159,61 @@ function getPlayersByRoomId(id){
   });
   return playerList;
 }
+
+function getPlayersIDByRoomId(id){
+  var playerList = [];
+  Object.keys(players).forEach(function(key) {
+    if(players[key].game){
+      if(players[key].game.room == id) playerList.push(players[key].id);
+    }
+  });
+  return playerList;
+}
+
+function returnAllPlayersInRoomSafe(id){
+  var playerList = {};
+  Object.keys(players).forEach(function(key) {
+    if(players[key].game){
+      if(players[key].game.room == id){
+        var safePlayer = new classes.Player(players[key].pseudo, players[key].id);
+        safePlayer.id = players[key].id;
+        safePlayer.pseudo = players[key].pseudo;
+
+        safePlayer.game = new classes.Game(players[key].game.status);
+        safePlayer.game.score = players[key].game.score;
+        safePlayer.game.status = players[key].game.status;
+        safePlayer.game.ready = players[key].game.ready;
+
+        safePlayer.game.room = new classes.Room(players[key].game.room.rounds);
+        safePlayer.game.room.guesserID = players[key].game.room.guesserID;
+        safePlayer.game.room.started = players[key].game.room.started;
+        safePlayer.game.room.rounds = players[key].game.room.rounds;
+
+        playerList[key] = safePlayer;
+      }
+    }
+  });
+  return playerList;
+}
+
+function returnSafePlayer(id){
+  var safePlayer = new classes.Player(players[id].pseudo, id);
+  safePlayer.id = players[id].id;
+  safePlayer.pseudo = players[id].pseudo;
+
+  safePlayer.game = new classes.Game(players[id].game.status);
+  safePlayer.game.score = players[id].game.score;
+  safePlayer.game.status = players[id].game.status;
+  safePlayer.game.ready = players[id].game.ready;
+
+  safePlayer.game.room = new classes.Room(players[id].game.room.rounds);
+  safePlayer.game.room.guesserID = players[id].game.room.guesserID;
+  safePlayer.game.room.started = players[id].game.room.started;
+  safePlayer.game.room.rounds = players[id].game.room.rounds;
+  return safePlayer;
+}
+
+
 
 function startRound(roomid){
   if(rooms[roomid].rounds > 0){

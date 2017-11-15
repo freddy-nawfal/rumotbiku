@@ -1,0 +1,25 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Server side for RuMotBiKu",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/freddy-nawfal/rumotbiku.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/freddy-nawfal/rumotbiku/issues"
+  },
+  "homepage": "https://github.com/freddy-nawfal/rumotbiku#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "randomstring": "^1.1.5",
+    "socket.io": "^2.0.4"
+  }
+}
