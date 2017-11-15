@@ -1,22 +1,42 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>RuMotBiKu</title>
-  </head>
+<head>
+ <title>RuMotBiKu!</title>
+ <!-- Required meta tags -->
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+ <!-- Bootstrap CSS -->
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+</head>
   <body>
-    <div class="container">
+    <div class="jumbotron" id="titre">
       <h1>RuMotBiKu</h1>
+      <span id="roomID"></span>
     </div>
 
+<div class="container" id="roomControl">
+  <form id="roomcode">
+  <div class="form-group">
+    <label for="codeid">Room Code</label>
+    <input type="text" class="form-control" id="codeid" name="codeid">
+    <button type="submit" class="btn btn-success">Rejoindre</button>
+  </div>
+  </form>
+  <button id="createRoom" class="btn btn-primary">Créer Room</button>
+</div>
 
-<form id="roomcode">
-  RoomCode<input type="text" id="codeid">
-  <input type="submit">
-</form>
+
+<div class="container" id="playArea" display="none">
+  <h3>Play Zone</h3>
+</div>
+
 
     <script src="js/jquery.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script src="js/card.js" charset="utf-8"></script>
     <script src="js/client.js"></script>
 
   </body>

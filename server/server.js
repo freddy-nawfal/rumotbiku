@@ -23,6 +23,7 @@ io.on('connection', function (socket) {
   // On instancie le nouveau joueur
   var newPlayer = new classes.Player(false, socket.id);
   players[newPlayer.id] = newPlayer;
+  socket.emit("roomControl");
 
 
   // Event de creation de room
@@ -39,9 +40,9 @@ io.on('connection', function (socket) {
 
       console.log(players[playerIndex]);
 
-      //ICI TRANSITIONNER LE JOUEUR VERS SA ROOM
+      //Transition du joueur dans sa room
 
-      socket.emit("joinedRoom", room.roomid);
+      socket.emit("createdRoom", room.roomid);
 
     }
     else{ // s'il est déjà dans une game
@@ -59,12 +60,11 @@ var playerIndex = socket.id;
         var game = new classes.Game('player');
         game.room = data;
         players[playerIndex].game = game;
-
-        console.log(players[playerIndex]);
-
-        //ICI TRANSITIONNER LE JOUEUR VERS LA ROOM
-
+        //Transition du joueur dans sa room
         socket.emit("joinedRoom", game.room);
+
+        //On informe les autres joueurs
+        emitToAllPlayersInRoom(game.room, "newPlayerInRoom", players[playerIndex].id)
       }
       else{
         console.log("Tentative de room non existante");
@@ -76,7 +76,6 @@ var playerIndex = socket.id;
     }
   }
   else{
-    console.log("bug.");
     forceDisconnect(socket);
   }
   });
@@ -97,19 +96,30 @@ function forceDisconnect(socket){
 }
 
 function deleteUser(s){
-  testRoom(s);
+  testRoomAndQuit(s);
   delete players[s.id];
-  console.log(rooms);
 }
 
 
-function testRoom(s){
+function testRoomAndQuit(s){
   if(players[s.id].game){
     var room = rooms[players[s.id].game.room];
     var playersInRoom = getPlayersByRoomId(room.roomid);
-    if(playersInRoom.length <= 1){
-      delete rooms[room.roomid];
+    for(i=0; i<playersInRoom.length; i++){
+      players[playersInRoom[i]].game = undefined;
+      io.to(players[playersInRoom[i]].id).emit("quitRoom");
     }
+    delete rooms[room.roomid];
+  }
+}
+
+function emitToAllPlayersInRoom(room, eventName, options){
+  var playersInRoom = getPlayersByRoomId(room.roomid);
+  for(i=0; i<playersInRoom.length; i++){
+    if(options)
+      io.to(players[playersInRoom[i]].id).emit(eventName, options);
+    else
+      io.to(players[playersInRoom[i]].id).emit(eventName);
   }
 }
 
