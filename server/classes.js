@@ -44,9 +44,11 @@ module.exports = {
       this.currentWord = undefined; // mot actuel (de type Word)
       this.guesserID = undefined; // id du joueur qui fait deviner
       this.createdOn = Date.now();
-      this.public = false;
+      this.public = true;
       this.started = false;
       this.rounds = rounds;
+      this.maxPlayers = 8;
+      this.playersCount = 0;
     }
 
     generateRoomId(){

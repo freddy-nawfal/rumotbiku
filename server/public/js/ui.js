@@ -1,9 +1,14 @@
 var roomID;
 var players = {};
 var myID;
+var rooms = {};
+var refreshRooms;
 
+/* later */
 
 function showPlayZone(){
+  clearInterval(refreshRooms);
+
   $("#playArea").show();
   $('#roomControl').hide();
   if(roomID){
@@ -21,6 +26,8 @@ function showRoomControl(){
   $("#codeid").val("");
 
   players = {};
+  printListOfRooms();
+  refreshRooms = setInterval(printListOfRooms, 5000);
 }
 
 function addPlayer(p){
@@ -44,4 +51,18 @@ function printListOfPlayers(){
       else $("#listOfPlayers").append('<li class="list-group-item">'+players[key].pseudo+'</li>');
     }
   });
+}
+
+
+function printListOfRooms(){
+  $("#roomList").html("");
+
+  var nbRooms = 0;
+  Object.keys(rooms).forEach(function(key) {
+    nbRooms++;
+    $("#roomList").append('<li class="list-group-item d-flex justify-content-between align-items-center" room="'+rooms[key].roomid+'">'+rooms[key].roomid+' - Rounds: '+rooms[key].rounds+'<span class="badge badge-primary badge-pill">'+rooms[key].playersCount+'/'+rooms[key].maxPlayers+'</span></li>');
+  });
+  if(nbRooms == 0){
+    $("#roomList").html("Il n'y a aucune room existante, créez-en une dès maintenant !");
+  }
 }

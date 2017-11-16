@@ -26,6 +26,8 @@ io.on('connection', function (socket) {
   socket.emit("hello", {id: newPlayer.id});
   socket.emit("roomControl");
 
+  sendListOfLobbys(newPlayer.id);
+
   socket.on('pseudo', function(p){
     players[socket.id].setPseudo(p);
     socket.emit("changedPseudo", p);
@@ -36,7 +38,7 @@ io.on('connection', function (socket) {
     var playerIndex = socket.id;
     if(players[playerIndex].game == undefined){ //s'il n'est pas dans une game
       //creation de la room
-      var room = new classes.Room();
+      var room = new classes.Room(5);
       var game = new classes.Game('master');
       game.room = room.roomid;
       rooms[room.roomid] = room;
@@ -47,6 +49,7 @@ io.on('connection', function (socket) {
 
       socket.emit("createdRoom", room.roomid);
       socket.emit("newPlayerInRoom", returnSafePlayer(playerIndex));
+      rooms[room.roomid].playersCount++;
     }
     else{ // s'il est déjà dans une game
       //afficher message d'erreur
@@ -63,15 +66,18 @@ var playerIndex = socket.id;
     if(players[playerIndex].game == undefined){//s'il n'est pas dans une game
       //rejoindre la room
       if(rooms[data]){
-        var game = new classes.Game('player');
-        game.room = data;
-        players[playerIndex].game = game;
+        if(rooms[data].playersCount < rooms[data].maxPlayers){
+          var game = new classes.Game('player');
+          game.room = data;
+          players[playerIndex].game = game;
 
-        //On informe les autres joueurs
-        broadcastToAllPlayersInRoom(playerIndex, rooms[game.room], "newPlayerInRoom", returnSafePlayer(playerIndex));
+          //On informe les autres joueurs
+          broadcastToAllPlayersInRoom(playerIndex, rooms[game.room], "newPlayerInRoom", returnSafePlayer(playerIndex));
 
-        //Transition du joueur dans sa room
-        socket.emit("joinedRoom", {room: game.room, players: returnAllPlayersInRoomSafe(game.room)});
+          //Transition du joueur dans sa room
+          socket.emit("joinedRoom", {room: game.room, players: returnAllPlayersInRoomSafe(game.room)});
+          rooms[data].playersCount++;
+        }
       }
       else{
         console.log("Tentative de room non existante");
@@ -95,8 +101,39 @@ var playerIndex = socket.id;
 
 server.listen(8000);
 
+// fonctions à rafraichissement
+setInterval(function(){
+  sendListOfLobbys();
+}, 5000);
+
 
 // fonctions utilitaires
+function sendListOfLobbys(user){
+  var roomList = {};
+  Object.keys(rooms).forEach(function(key) {
+    if(!rooms[key].started && rooms[key].public && (rooms[key].playersCount < rooms[key].maxPlayers)){
+      var safeRoom = new classes.Room(rooms[key].rounds);
+      safeRoom.guesserID = rooms[key].guesserID;
+      safeRoom.rounds = rooms[key].rounds;
+      safeRoom.roomid = rooms[key].roomid;
+      safeRoom.maxPlayers = rooms[key].maxPlayers;
+      safeRoom.playersCount = rooms[key].playersCount;
+      safeRoom.createdOn = rooms[key].createdOn;
+
+      roomList[key] = safeRoom;
+    }
+  });
+
+  if(user){
+    io.to(user).emit("listOfRooms", roomList);
+  }
+  else{
+    io.sockets.emit("listOfRooms", roomList);
+  }
+}
+
+
+
 function forceDisconnect(socket){
   socket.emit("forceDisconnect");
   socket.disconnect();
@@ -122,6 +159,7 @@ function testRoomAndQuit(s){
     else{
       emitToAllPlayersInRoom(rooms[players[s.id].game.room], "playerLeftRoom", players[s.id].id);
       players[s.id].game == undefined;
+      rooms[players[s.id].game.room].playersCount--;
     }
   }
 }

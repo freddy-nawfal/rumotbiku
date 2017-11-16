@@ -14,6 +14,13 @@ $("#createRoom").click(function(e){
   socket.emit('createRoom');
   e.preventDefault();
 });
+$("#roomList").on('click', 'li', function(event){
+    $(this).html("Veuillez patienter");
+    socket.emit('joinRoom', $(this).attr("room"));
+});
+
+
+
 
 socket.on("hello", function(info){
   myID = info.id;
@@ -52,4 +59,10 @@ socket.on("roomControl", function() {
 socket.on("quitRoom", function() {
   cardCreate("Le créateur de la room est parti", 5);
   showRoomControl();
+});
+
+
+socket.on("listOfRooms", function(r){
+  rooms = r;
+  printListOfRooms();
 });
