@@ -14,6 +14,16 @@ function showPlayZone(){
   if(roomID){
     $("#roomID").html("Room: "+roomID);
   }
+
+  $("#readyArea").html("");
+  var waitForPlayers = setInterval(function(){
+    if(players[myID]){
+      if(players[myID].game.status == 'master'){
+        $("#readyArea").html('<button type="button" class="btn btn-info" id="btnBegin">Commencer</button>');
+        clearInterval(waitForPlayers);
+      }
+    }
+  },1000);
 }
 
 function showRoomControl(){

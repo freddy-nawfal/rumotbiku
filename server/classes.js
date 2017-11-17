@@ -49,6 +49,9 @@ module.exports = {
       this.rounds = rounds;
       this.maxPlayers = 8;
       this.playersCount = 0;
+      this.readyCount = 0;
+      this.readyCountDown;
+      this.roundStarted = false;
     }
 
     generateRoomId(){

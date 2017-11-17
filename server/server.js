@@ -35,20 +35,19 @@ io.on('connection', function (socket) {
 
   // Event de creation de room
   socket.on("createRoom", function(){
-    var playerIndex = socket.id;
-    if(players[playerIndex].game == undefined){ //s'il n'est pas dans une game
+    if(!isPlayerInGame(socket)){ //s'il n'est pas dans une game
       //creation de la room
       var room = new classes.Room(5);
       var game = new classes.Game('master');
       game.room = room.roomid;
       rooms[room.roomid] = room;
 
-      players[playerIndex].game = game;
+      players[socket.id].game = game;
 
       //Transition du joueur dans sa room
 
       socket.emit("createdRoom", room.roomid);
-      socket.emit("newPlayerInRoom", returnSafePlayer(playerIndex));
+      socket.emit("newPlayerInRoom", returnSafePlayer(socket.id));
       rooms[room.roomid].playersCount++;
     }
     else{ // s'il est déjà dans une game
@@ -61,18 +60,16 @@ io.on('connection', function (socket) {
 
   socket.on("joinRoom", function(data){
 //tester si data a un format correct
-var playerIndex = socket.id;
-  if(playerIndex){
-    if(players[playerIndex].game == undefined){//s'il n'est pas dans une game
+    if(!isPlayerInGame(socket)){//s'il n'est pas dans une game
       //rejoindre la room
       if(rooms[data]){
-        if(rooms[data].playersCount < rooms[data].maxPlayers){
+        if(rooms[data].playersCount < rooms[data].maxPlayers && !rooms[data].started){
           var game = new classes.Game('player');
           game.room = data;
-          players[playerIndex].game = game;
+          players[socket.id].game = game;
 
           //On informe les autres joueurs
-          broadcastToAllPlayersInRoom(playerIndex, rooms[game.room], "newPlayerInRoom", returnSafePlayer(playerIndex));
+          broadcastToAllPlayersInRoom(socket.id, rooms[game.room], "newPlayerInRoom", returnSafePlayer(socket.id));
 
           //Transition du joueur dans sa room
           socket.emit("joinedRoom", {room: game.room, players: returnAllPlayersInRoomSafe(game.room)});
@@ -87,10 +84,27 @@ var playerIndex = socket.id;
       //message d'erreur et demande d'autorisation de changer de game
       console.log("Joueur deja dans une game.");
     }
-  }
-  else{
-    forceDisconnect(socket);
-  }
+  });
+
+  socket.on('beginGame', function(){
+        if(isPlayerInGame(socket)){//s'il n'est pas dans une game
+          if(players[socket.id].game.status == 'master'){
+            if(!rooms[players[socket.id].game.room].started){
+              rooms[players[socket.id].game.room].started = true;
+              emitToAllPlayersInRoom(rooms[players[socket.id].game.room], "gameStarted");
+              beginReadyCountDown(rooms[players[socket.id].game.room]);
+            }
+          }
+        }
+  });
+
+  socket.on("ready", function(){
+    if(isPlayerInGame(socket)){
+      players[socket.id].game.ready = true;
+      if(allPlayersReadyInRoom(rooms[players[socket.id].game.room])){
+        beginRound(rooms[players[socket.id].game.room]);
+      }
+    }
   });
 
   socket.on('disconnect', function(){
@@ -108,6 +122,79 @@ setInterval(function(){
 
 
 // fonctions utilitaires
+function isPlayerInGame(s){
+  var playerIndex = s.id;
+    if(playerIndex){
+      if(players[playerIndex].game){
+        return true;
+      }
+    }
+    return false;
+}
+
+function beginReadyCountDown(room){
+  rooms[room.roomid].roundStarted = false;
+  rooms[room.roomid].readyCount = 0;
+  rooms[room.roomid].readyCountDown = setInterval(function(){
+    if(rooms[room.roomid].readyCount == 30){
+      beginRound(rooms[room.roomid]);
+    }
+    else{
+      rooms[room.roomid].readyCount++;
+    }
+  }, 1000);
+}
+
+function beginRound(room){
+  if(!rooms[room.roomid].roundStarted){
+    rooms[room.roomid].roundStarted = true;
+    clearInterval(rooms[room.roomid].readyCountDown);
+    var playersInRoom = getPlayersByRoomId(room);
+    for(i=0; i<playersInRoom.length; i++){
+      players[playersInRoom[i]].game.ready = false;
+    }
+    console.log("Game begining");
+  }
+}
+
+function startRound(roomid){
+  if(rooms[roomid].rounds > 0){
+    switchTurns(roomid);
+    //emit round status to all players
+    //emit word to guesser
+  }
+  else{
+    //end game
+    //display scores
+  }
+}
+
+function switchTurns(roomid){
+  var playersInRoom = getPlayersByRoomId(roomid);
+  rooms[roomid].guesserID = (getRandomPlayer(playersInRoom)).id;
+  rooms[roomid].currentWord = new Word();
+  rooms[roomid].rounds--;
+}
+
+function getRandomPlayer(ListOfPlayers){
+  var random = Math.floor(Math.random() * (ListOfPlayers.length-1)) + 1;
+  return players[ListOfPlayers[random]];
+}
+
+
+////////////////////////
+
+
+function allPlayersReadyInRoom(room){
+  var playersInRoom = getPlayersIDByRoomId(room.roomid);
+  for(i=0; i<playersInRoom.length; i++){
+    if(!players[playersInRoom[i]].game.ready){
+      return false;
+    }
+  }
+  return true;
+}
+
 function sendListOfLobbys(user){
   var roomList = {};
   Object.keys(rooms).forEach(function(key) {
@@ -154,6 +241,7 @@ function testRoomAndQuit(s){
         players[playersInRoom[i]].game = undefined;
         io.to(players[playersInRoom[i]].id).emit("quitRoom");
       }
+      clearInterval(rooms[room.roomid].readyCountDown);
       delete rooms[room.roomid];
     }
     else{
@@ -249,30 +337,4 @@ function returnSafePlayer(id){
   safePlayer.game.room.started = players[id].game.room.started;
   safePlayer.game.room.rounds = players[id].game.room.rounds;
   return safePlayer;
-}
-
-
-
-function startRound(roomid){
-  if(rooms[roomid].rounds > 0){
-    switchTurns(roomid);
-    //emit round status to all players
-    //emit word to guesser
-  }
-  else{
-    //end game
-    //display scores
-  }
-}
-
-function switchTurns(roomid){
-  var playersInRoom = getPlayersByRoomId(roomid);
-  rooms[roomid].guesserID = (getRandomPlayer(playersInRoom)).id;
-  rooms[roomid].currentWord = new Word();
-  rooms[roomid].rounds--;
-}
-
-function getRandomPlayer(ListOfPlayers){
-  var random = Math.floor(Math.random() * (ListOfPlayers.length-1)) + 1;
-  return players[ListOfPlayers[random]];
 }

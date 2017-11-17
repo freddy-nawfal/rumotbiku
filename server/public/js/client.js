@@ -18,6 +18,15 @@ $("#roomList").on('click', 'li', function(event){
     $(this).html("Veuillez patienter");
     socket.emit('joinRoom', $(this).attr("room"));
 });
+$(document.body).on('click', '#btnReady', function(e){
+  socket.emit('ready');
+  e.preventDefault();
+});
+$(document.body).on('click', '#btnBegin', function(e){
+  socket.emit("beginGame");
+  e.preventDefault();
+});
+
 
 
 
@@ -65,4 +74,9 @@ socket.on("quitRoom", function() {
 socket.on("listOfRooms", function(r){
   rooms = r;
   printListOfRooms();
+});
+
+
+socket.on("gameStarted", function(){
+  $("#readyArea").html('<button type="button" class="btn btn-success" id="btnReady">Prêt</button>');
 });
