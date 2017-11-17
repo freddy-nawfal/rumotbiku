@@ -36,6 +36,7 @@ module.exports = {
       this.score = 0;
       this.status = status;
       this.ready = false;
+      this.guess = "";
     }
   },
 
@@ -48,7 +49,7 @@ module.exports = {
       this.public = true;
       this.started = false;
       this.rounds = rounds;
-      this.maxPlayers = 8;
+      this.maxPlayers = 4;
       this.playersCount = 0;
       this.readyCount = 0;
       this.readyCountDown;

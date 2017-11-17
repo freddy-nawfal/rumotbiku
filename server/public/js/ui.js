@@ -3,6 +3,7 @@ var players = {};
 var myID;
 var rooms = {};
 var refreshRooms;
+var showReadyStatus = false;
 
 /* later */
 
@@ -40,6 +41,13 @@ function showRoomControl(){
   refreshRooms = setInterval(printListOfRooms, 5000);
 }
 
+function hideReadyBtn(){
+  $("#readyArea").html("");
+}
+function showReadyBtn(){
+  $("#readyArea").html('<button type="button" class="btn btn-success" id="btnReady">Prêt</button>');
+}
+
 function addPlayer(p){
   players[p.id] = p;
 }
@@ -52,14 +60,27 @@ function printListOfPlayers(){
   $("#meDisplay").html("");
 
   Object.keys(players).forEach(function(key) {
-    if(players[key].id == myID){
-      if(players[key].game.status == 'master') $("#meDisplay").html('<div class="card-header alert-success"><b>MOI: </b>'+players[key].pseudo+'</div>');
-      else $("#meDisplay").html('<div class="card-header"><b>MOI: </b>'+players[key].pseudo+'</div>');
+    if(showReadyStatus && players[key].game.ready){
+      if(players[key].id == myID){
+        if(players[key].game.status == 'master') $("#meDisplay").html('<div class="card-header alert-info"><b>MOI: </b>'+players[key].pseudo+'</div>');
+        else $("#meDisplay").html('<div class="card-header alert-info"><b>MOI: </b>'+players[key].pseudo+'</div>');
+      }
+      else{
+        if(players[key].game.status == 'master') $("#listOfPlayers").append('<li class="list-group-item border border-danger list-group-item-primary">(master)'+players[key].pseudo+'</li>');
+        else $("#listOfPlayers").append('<li class="list-group-item list-group-item-primary">'+players[key].pseudo+'</li>');
+      }
     }
     else{
-      if(players[key].game.status == 'master') $("#listOfPlayers").append('<li class="list-group-item border border-danger">(master)'+players[key].pseudo+'</li>');
-      else $("#listOfPlayers").append('<li class="list-group-item">'+players[key].pseudo+'</li>');
+      if(players[key].id == myID){
+        if(players[key].game.status == 'master') $("#meDisplay").html('<div class="card-header alert-success"><b>MOI: </b>'+players[key].pseudo+'</div>');
+        else $("#meDisplay").html('<div class="card-header"><b>MOI: </b>'+players[key].pseudo+'</div>');
+      }
+      else{
+        if(players[key].game.status == 'master') $("#listOfPlayers").append('<li class="list-group-item border border-danger">(master)'+players[key].pseudo+'</li>');
+        else $("#listOfPlayers").append('<li class="list-group-item">'+players[key].pseudo+'</li>');
+      }
     }
+
   });
 }
 

@@ -74,6 +74,11 @@ io.on('connection', function (socket) {
           //Transition du joueur dans sa room
           socket.emit("joinedRoom", {room: game.room, players: returnAllPlayersInRoomSafe(game.room)});
           rooms[data].playersCount++;
+
+          if(rooms[data].playersCount == rooms[data].maxPlayers){
+            rooms[data].started = true;
+            beginReadyCountDown(rooms[data]);
+          }
         }
       }
       else{
@@ -91,7 +96,6 @@ io.on('connection', function (socket) {
           if(players[socket.id].game.status == 'master'){
             if(!rooms[players[socket.id].game.room].started){
               rooms[players[socket.id].game.room].started = true;
-              emitToAllPlayersInRoom(rooms[players[socket.id].game.room], "gameStarted");
               beginReadyCountDown(rooms[players[socket.id].game.room]);
             }
           }
@@ -101,6 +105,7 @@ io.on('connection', function (socket) {
   socket.on("ready", function(){
     if(isPlayerInGame(socket)){
       players[socket.id].game.ready = true;
+      emitToAllPlayersInRoom(rooms[players[socket.id].game.room], "playerIsReady", socket.id);
       if(allPlayersReadyInRoom(rooms[players[socket.id].game.room])){
         beginRound(rooms[players[socket.id].game.room]);
       }
@@ -135,6 +140,7 @@ function isPlayerInGame(s){
 function beginReadyCountDown(room){
   rooms[room.roomid].roundStarted = false;
   rooms[room.roomid].readyCount = 0;
+  emitToAllPlayersInRoom(rooms[room.roomid], "getReady");
   rooms[room.roomid].readyCountDown = setInterval(function(){
     if(rooms[room.roomid].readyCount == 30){
       beginRound(rooms[room.roomid]);
@@ -175,6 +181,12 @@ function switchTurns(roomid){
   rooms[roomid].guesserID = (getRandomPlayer(playersInRoom)).id;
   rooms[roomid].currentWord = new classes.Word();
   rooms[roomid].rounds--;
+
+  Object.keys(playersInRoom).forEach(function(key) {
+    if(playersInRoom[key].game){
+      playersInRoom[key].game.guess = "";
+    }
+  });
   console.log("rounds: "+rooms[roomid].rounds+" Guesser: "+players[rooms[roomid].guesserID].pseudo+" word: "+rooms[roomid].currentWord.word);
 }
 

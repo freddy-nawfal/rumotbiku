@@ -19,6 +19,7 @@ $("#roomList").on('click', 'li', function(event){
     socket.emit('joinRoom', $(this).attr("room"));
 });
 $(document.body).on('click', '#btnReady', function(e){
+  hideReadyBtn();
   socket.emit('ready');
   e.preventDefault();
 });
@@ -40,7 +41,7 @@ socket.on("changedPseudo", function(p){
 });
 
 socket.on("joinedRoom", function(gameInfo) {
-  cardCreate("Vous rejoignez la room: "+gameInfo.room, 10);
+  cardCreate("En attente du master ...");
   roomID = gameInfo.room;
   players = gameInfo.players;
   showPlayZone();
@@ -48,7 +49,7 @@ socket.on("joinedRoom", function(gameInfo) {
 });
 socket.on("createdRoom", function(id) {
   roomID = id;
-  cardCreate("Envoyez cet ID à vos amis pour qu'ils vous rejoignent: "+id, 10);
+  cardCreate("Envoyez cet ID à vos amis pour qu'ils vous rejoignent: "+id, 5);
   showPlayZone();
 });
 socket.on("newPlayerInRoom", function(id){
@@ -77,9 +78,21 @@ socket.on("listOfRooms", function(r){
 });
 
 
-socket.on("gameStarted", function(){
-  $("#readyArea").html('<button type="button" class="btn btn-success" id="btnReady">Prêt</button>');
+socket.on("getReady", function(){
+  cardHide();
+  showReadyStatus = true;
+  showReadyBtn();
+});
+socket.on("playerIsReady", function(id){
+  players[id].game.ready = true;
+  printListOfPlayers();
 });
 socket.on("roundStart", function(){
-  $("#readyArea").html("");
+  showReadyStatus = false;
+  hideReadyBtn();
+  cardCreate("Le round va commencer sous peu...");
+  setTimeout(function(){
+    cardHide();
+    printListOfPlayers();
+  }, 5000);
 });
