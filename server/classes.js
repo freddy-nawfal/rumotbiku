@@ -6,6 +6,7 @@ module.exports = {
     constructor() {
       this.word = this.generateWord();
       this.generatedTime = Date.now();
+      return this.word;
     }
     generateWord(){
       return "bonjour";

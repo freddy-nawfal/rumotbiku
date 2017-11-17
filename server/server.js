@@ -153,12 +153,13 @@ function beginRound(room){
     for(i=0; i<playersInRoom.length; i++){
       players[playersInRoom[i]].game.ready = false;
     }
-    console.log("Game begining");
+    startRound(room.roomid);
   }
 }
 
 function startRound(roomid){
   if(rooms[roomid].rounds > 0){
+    emitToAllPlayersInRoom(rooms[roomid], "roundStart", rooms[roomid].rounds);
     switchTurns(roomid);
     //emit round status to all players
     //emit word to guesser
@@ -172,8 +173,9 @@ function startRound(roomid){
 function switchTurns(roomid){
   var playersInRoom = getPlayersByRoomId(roomid);
   rooms[roomid].guesserID = (getRandomPlayer(playersInRoom)).id;
-  rooms[roomid].currentWord = new Word();
+  rooms[roomid].currentWord = new classes.Word();
   rooms[roomid].rounds--;
+  console.log("rounds: "+rooms[roomid].rounds+" Guesser: "+players[rooms[roomid].guesserID].pseudo+" word: "+rooms[roomid].currentWord.word);
 }
 
 function getRandomPlayer(ListOfPlayers){

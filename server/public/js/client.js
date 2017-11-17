@@ -80,3 +80,6 @@ socket.on("listOfRooms", function(r){
 socket.on("gameStarted", function(){
   $("#readyArea").html('<button type="button" class="btn btn-success" id="btnReady">Prêt</button>');
 });
+socket.on("roundStart", function(){
+  $("#readyArea").html("");
+});
