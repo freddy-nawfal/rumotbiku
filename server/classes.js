@@ -45,6 +45,7 @@ module.exports = {
       this.roomid = this.generateRoomId();
       this.currentWord = undefined; // mot actuel (de type Word)
       this.guesserID = undefined; // id du joueur qui fait deviner
+      this.guesserName = undefined; //pseudo du joueur qui fait deviner
       this.createdOn = Date.now();
       this.public = true;
       this.started = false;
@@ -58,6 +59,18 @@ module.exports = {
 
     generateRoomId(){
       return (randomstring.generate(7)).toUpperCase();
+    }
+
+    getSafe(withWord){
+      var safeRoom = {};
+      if(withWord){
+        safeRoom.word = this.currentWord.word;
+      }
+      safeRoom.guesserID = this.guesserID;
+      safeRoom.guesserName = this.guesserName;
+      safeRoom.rounds = this.rounds;
+
+      return safeRoom;
     }
   }
 }

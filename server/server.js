@@ -167,8 +167,12 @@ function startRound(roomid){
   if(rooms[roomid].rounds > 0){
     emitToAllPlayersInRoom(rooms[roomid], "roundStart", rooms[roomid].rounds);
     switchTurns(roomid);
+
+
     //emit round status to all players
+    emitToAllPlayersInRoom(rooms[roomid], "roomStatus", rooms[roomid].getSafe(false));
     //emit word to guesser
+    emitToPlayer(rooms[roomid].guesserID, "roomStatus", rooms[roomid].getSafe(true));
   }
   else{
     //end game
@@ -179,6 +183,7 @@ function startRound(roomid){
 function switchTurns(roomid){
   var playersInRoom = getPlayersByRoomId(roomid);
   rooms[roomid].guesserID = (getRandomPlayer(playersInRoom)).id;
+  rooms[roomid].guesserName = players[rooms[roomid].guesserID].pseudo;
   rooms[roomid].currentWord = new classes.Word();
   rooms[roomid].rounds--;
 
@@ -187,7 +192,7 @@ function switchTurns(roomid){
       playersInRoom[key].game.guess = "";
     }
   });
-  console.log("rounds: "+rooms[roomid].rounds+" Guesser: "+players[rooms[roomid].guesserID].pseudo+" word: "+rooms[roomid].currentWord.word);
+  console.log("rounds: "+rooms[roomid].rounds+" Guesser: "+rooms[roomid].guesserName+" word: "+rooms[roomid].currentWord.word);
 }
 
 function getRandomPlayer(ListOfPlayers){
@@ -274,6 +279,13 @@ function emitToAllPlayersInRoom(room, eventName, options){
     else
       io.to(players[playersInRoom[i]].id).emit(eventName);
   }
+}
+
+function emitToPlayer(id, eventName, options){
+  if(options)
+    io.to(id).emit(eventName, options);
+  else
+    io.to(id).emit(eventName);
 }
 
 function broadcastToAllPlayersInRoom(myid, room, eventName, options){

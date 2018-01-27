@@ -8,11 +8,15 @@
 
  <!-- Bootstrap CSS -->
  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+ <link rel="stylesheet" href="css/style.css">
 </head>
   <body>
     <div class="jumbotron" id="titre">
       <h1>RuMotBiKu</h1>
-      <span id="roomID"></span>
+      <div class="row">
+        <div class="col-md-6"><span id="roomID"></span></div>
+        <div class="col-md-6"><span class="pull-right" id="roundWord"></span></div>
+      </div>
     </div>
 
 <div class="container" id="roomControl">
@@ -49,7 +53,7 @@
 
 <div class="container" id="playArea" display="none">
   <div class="row">
-    <div class="col-8">
+    <div class="col-8" id="playZone">
       <h3>Play Zone</h3>
     </div>
     <div class="col-2">

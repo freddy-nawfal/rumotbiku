@@ -4,6 +4,7 @@ var myID;
 var rooms = {};
 var refreshRooms;
 var showReadyStatus = false;
+var currentRoom;
 
 /* later */
 
@@ -28,11 +29,15 @@ function showPlayZone(){
 }
 
 function showRoomControl(){
+  cardHide();
   $('#roomControl').show();
   $("#playArea").hide();
 
   roomID = "";
   $("#roomID").html(roomID);
+
+  currentRoom = {};
+  $("#roundWord").html("");
 
   $("#codeid").val("");
 

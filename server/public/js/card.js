@@ -16,7 +16,7 @@ function cardText(text){
 }
 function cardCreate(text, time){
   if(!cardIsSet){
-    $("#titre").after('<span id="card"></span>');
+    $("body").prepend('<span id="card"></span>');
     card = $("#card");
     cardIsSet = true;
   }

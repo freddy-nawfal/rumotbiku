@@ -91,8 +91,16 @@ socket.on("roundStart", function(){
   showReadyStatus = false;
   hideReadyBtn();
   cardCreate("Le round va commencer sous peu...");
-  setTimeout(function(){
-    cardHide();
-    printListOfPlayers();
-  }, 5000);
+});
+
+
+socket.on("roomStatus", function(roomData){
+  if(roomData.word){
+    cardCreate("Vous faites deviner: <b>"+roomData.word+"</b>");
+    $("#roundWord").html("Mot: "+roomData.word);
+  }
+  else{
+    cardCreate("<b>"+roomData.guesserName+"</b> vous fait deviner le mot");
+  }
+  currentRoom = roomData;
 });
