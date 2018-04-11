@@ -104,3 +104,7 @@ socket.on("roomStatus", function(roomData){
   }
   currentRoom = roomData;
 });
+
+socket.on("errorMSG", function(data){
+  cardCreate(data, 5, "alert");
+});

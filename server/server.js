@@ -19,7 +19,7 @@ var express = require('express');
 var players = {};
 var rooms = {};
 
-io.on('connection', function (socket) {
+io.on('connection', function(socket) {
   // On instancie le nouveau joueur
   var newPlayer = new classes.Player(false, socket.id);
   players[newPlayer.id] = newPlayer;
@@ -30,7 +30,7 @@ io.on('connection', function (socket) {
 
   socket.on('pseudo', function(p){
     players[socket.id].setPseudo(p);
-    socket.emit("changedPseudo", p);
+    socket.emit("changedPseudo", players[socket.id].pseudo);
   });
 
   // Event de creation de room
@@ -45,7 +45,6 @@ io.on('connection', function (socket) {
       players[socket.id].game = game;
 
       //Transition du joueur dans sa room
-
       socket.emit("createdRoom", room.roomid);
       socket.emit("newPlayerInRoom", returnSafePlayer(socket.id));
       rooms[room.roomid].playersCount++;
@@ -59,7 +58,7 @@ io.on('connection', function (socket) {
 
 
   socket.on("joinRoom", function(data){
-//tester si data a un format correct
+    //tester si data a un format correct
     if(!isPlayerInGame(socket)){//s'il n'est pas dans une game
       //rejoindre la room
       if(rooms[data]){
@@ -92,14 +91,19 @@ io.on('connection', function (socket) {
   });
 
   socket.on('beginGame', function(){
-        if(isPlayerInGame(socket)){//s'il n'est pas dans une game
-          if(players[socket.id].game.status == 'master'){
-            if(!rooms[players[socket.id].game.room].started){
+      if(isPlayerInGame(socket)){//s'il n'est pas dans une game
+        if(players[socket.id].game.status == 'master'){
+          if(!rooms[players[socket.id].game.room].started){
+            if(getPlayersByRoomId(players[socket.id].game.room).length >= 2){
               rooms[players[socket.id].game.room].started = true;
               beginReadyCountDown(rooms[players[socket.id].game.room]);
             }
+            else{
+              socket.emit("errorMSG", "Il doit y avoir au moins 2 personnes dans la room");
+            }
           }
         }
+      }
   });
 
   socket.on("ready", function(){
