@@ -10,7 +10,7 @@
  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
  <link rel="stylesheet" href="css/style.css">
 </head>
-  <body>
+  <body onload="initCanvas()">
     <div class="jumbotron" id="titre">
       <h1>RuMotBiKu</h1>
       <div class="row">
@@ -54,7 +54,16 @@
 <div class="container" id="playArea" display="none">
   <div class="row">
     <div class="col-8" id="playZone">
-      <h3>Play Zone</h3>
+      <canvas id="can" width="600" height="500" style="background-color:white; border: 2px solid black; position: absolute; left: 0; top: 0;"></canvas>
+        <div style="position:absolute;top:0;left:0px;width:25px;height:20px;background:green;" id="green" onclick="color(this)"></div>
+        <div style="position:absolute;top:0;left:25px;width:25px;height:20px;background:blue;" id="blue" onclick="color(this)"></div>
+        <div style="position:absolute;top:0;left:50px;width:25px;height:20px;background:red;" id="red" onclick="color(this)"></div>
+        <div style="position:absolute;top:0;left:75px;width:25px;height:20px;background:yellow;" id="yellow" onclick="color(this)"></div>
+        <div style="position:absolute;top:0;left:100px;width:25px;height:20px;background:orange;" id="orange" onclick="color(this)"></div>
+        <div style="position:absolute;top:0;left:125px;width:25px;height:20px;background:black;" id="black" onclick="color(this)"></div>
+        <div style="position:absolute;top:0;left:150px;width:25px;height:20px;background:white;border:2px solid;" id="white" onclick="color(this)"></div>
+        <img id="canvasimg" style="position:absolute;top:10%;left:52%;" style="display:none;">
+        <input type="button" value="clear" id="clr" size="23" onclick="erase()" style="position:absolute;top:0;right:0;">
     </div>
     <div class="col-2">
       <h5>Joueurs</h5>
@@ -78,6 +87,7 @@
     <script src="js/card.js" charset="utf-8"></script>
     <script src="js/ui.js" charset="utf-8"></script>
     <script src="js/client.js"></script>
+    <script src="js/paint.js" charset="utf-8"></script>
 
   </body>
 </html>

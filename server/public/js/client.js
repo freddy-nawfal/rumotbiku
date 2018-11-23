@@ -1,5 +1,6 @@
 var socket = io.connect('http://localhost:8000');
 
+
 $("#roomcode").submit(function(e){
   socket.emit('joinRoom', $("#codeid").val());
   e.preventDefault();
@@ -28,6 +29,9 @@ $(document.body).on('click', '#btnBegin', function(e){
   e.preventDefault();
 });
 
+function submitDrawing(data){
+  socket.emit("draw", data);
+}
 
 
 
@@ -95,16 +99,24 @@ socket.on("roundStart", function(){
 
 
 socket.on("roomStatus", function(roomData){
+  iAmGuesser = false;
   if(roomData.word){
+    iAmGuesser = true;
     cardCreate("Vous faites deviner: <b>"+roomData.word+"</b>");
     $("#roundWord").html("Mot: "+roomData.word);
+    initEvents();
   }
   else{
     cardCreate("<b>"+roomData.guesserName+"</b> vous fait deviner le mot");
+    deleteEvents();
   }
   currentRoom = roomData;
 });
 
 socket.on("errorMSG", function(data){
   cardCreate(data, 5, "alert");
+});
+
+socket.on("drawing", function(data){
+  drawData(data);
 });

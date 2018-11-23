@@ -116,6 +116,14 @@ io.on('connection', function(socket) {
     }
   });
 
+  socket.on("draw", function(data){
+    if(isPlayerInGame(socket)){
+      if(rooms[players[socket.id].game.room].guesserID == socket.id){ // we are the guesser
+        broadcastToAllPlayersInRoom(socket.id, rooms[players[socket.id].game.room], "drawing", data);
+      }
+    }
+  });
+
   socket.on('disconnect', function(){
     deleteUser(socket);
   });

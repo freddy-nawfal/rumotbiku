@@ -5,6 +5,7 @@ var rooms = {};
 var refreshRooms;
 var showReadyStatus = false;
 var currentRoom;
+var iAmGuesser = false;
 
 /* later */
 
