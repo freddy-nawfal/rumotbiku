@@ -90,8 +90,9 @@ io.on('connection', function(socket) {
     }
   });
 
+  
   socket.on('beginGame', function(){
-      if(isPlayerInGame(socket)){//s'il n'est pas dans une game
+      if(isPlayerInGame(socket)){//s'il est dans une game
         if(players[socket.id].game.status == 'master'){
           if(!rooms[players[socket.id].game.room].started){
             if(getPlayersByRoomId(players[socket.id].game.room).length >= 2){
@@ -123,6 +124,35 @@ io.on('connection', function(socket) {
       }
     }
   });
+  socket.on("clear", function(data){
+    if(isPlayerInGame(socket)){
+      if(rooms[players[socket.id].game.room].guesserID == socket.id){ // we are the guesser
+        broadcastToAllPlayersInRoom(socket.id, rooms[players[socket.id].game.room], "clear", data);
+      }
+    }
+  });
+
+  socket.on("chat", function(data){
+    if(isPlayerInGame(socket)){
+      var room = rooms[players[socket.id].game.room];
+      var word = "";
+      if(room.currentWord){
+        word = rooms[players[socket.id].game.room].currentWord.word;
+      }
+      
+      if(word != data.word){ // we are the guesser
+        emitToAllPlayersInRoom(room, "chat", {word:data.word, player:players[socket.id].id});
+      }
+      else{
+        // l'utilisateur a trouvé le bon mot
+        if(players[socket.id].game.guess != word){ // vérifier s'il ne l'a pas déjà entré
+          players[socket.id].game.guess = word; 
+          players[socket.id].game.score++;
+          emitToAllPlayersInRoom(room, "foundWord", players[socket.id].id);
+        }
+      }
+    }
+  });
 
   socket.on('disconnect', function(){
     deleteUser(socket);
@@ -135,7 +165,7 @@ server.listen(8000);
 // fonctions à rafraichissement
 setInterval(function(){
   sendListOfLobbys();
-}, 5000);
+}, 2000);
 
 
 // fonctions utilitaires
@@ -154,7 +184,7 @@ function beginReadyCountDown(room){
   rooms[room.roomid].readyCount = 0;
   emitToAllPlayersInRoom(rooms[room.roomid], "getReady");
   rooms[room.roomid].readyCountDown = setInterval(function(){
-    if(rooms[room.roomid].readyCount == 30){
+    if(rooms[room.roomid].readyCount >= 30){
       beginRound(rooms[room.roomid]);
     }
     else{
@@ -204,7 +234,6 @@ function switchTurns(roomid){
       playersInRoom[key].game.guess = "";
     }
   });
-  console.log("rounds: "+rooms[roomid].rounds+" Guesser: "+rooms[roomid].guesserName+" word: "+rooms[roomid].currentWord.word);
 }
 
 function getRandomPlayer(ListOfPlayers){

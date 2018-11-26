@@ -7,3 +7,42 @@
   position: absolute;
   width: 90%;
 }
+#progressBar {
+  width: 90%;
+  margin: 10px auto;
+  height: 22px;
+  background-color: #0A5F44;
+}
+
+#progressBar div {
+  height: 100%;
+  text-align: right;
+  padding: 0 10px;
+  line-height: 22px; /* same as #progressBar height if we want text middle aligned */
+  width: 0;
+  background-color: rgb(34, 158, 23);
+  box-sizing: border-box;
+}
+
+
+.chatmsg{
+  background-color: #ececec;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+}
+.chatmsgme{
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+  text-align: right;
+  background-color: cornflowerblue;
+}
+.log{
+  text-align: center;
+  color: darkgoldenrod;
+  margin: 5px;
+}
+
+/* Do not take in account */
+html{padding-top:30px}a.solink{position:fixed;top:0;width:100%;text-align:center;background:#f3f5f6;color:#cfd6d9;border:1px solid #cfd6d9;line-height:30px;text-decoration:none;transition:all .3s;z-index:999}a.solink::first-letter{text-transform:capitalize}a.solink:hover{color:#428bca}

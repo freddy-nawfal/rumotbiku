@@ -71,9 +71,21 @@
         En attente du Master...
       </div>
       <div class="card" style="width: 20rem;" id="cardOfList">
+        <div id="progressBar" style="display:none">
+          <div class="bar"></div>
+        </div>
         <span id="meDisplay"></span>
         <ul class="list-group list-group-flush" id="listOfPlayers">
         </ul>
+      </div>
+      <div class="card" style="width: 20rem;">
+        <div id="chat-area" style="height:400px; overflow: auto;"></div>
+        <div id="input-area">
+          <form id="chat">
+            <input type="text" id="input" placeholder="Entrez votre message">
+            <button type="submit">Envoyer</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>

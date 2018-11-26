@@ -28,10 +28,22 @@ $(document.body).on('click', '#btnBegin', function(e){
   socket.emit("beginGame");
   e.preventDefault();
 });
+$("#chat").on('submit', function(e){
+  var content = $("#input").val();
+  $("#input").val("");
+  socket.emit("chat", {word: content});
+  e.preventDefault();
+});
+
+
 
 function submitDrawing(data){
   socket.emit("draw", data);
 }
+function submitClear(data){
+  socket.emit("clear", data);
+}
+
 
 
 
@@ -86,6 +98,8 @@ socket.on("getReady", function(){
   cardHide();
   showReadyStatus = true;
   showReadyBtn();
+  showProgressBar();
+  progress(30, 30, $('#progressBar'));
 });
 socket.on("playerIsReady", function(id){
   players[id].game.ready = true;
@@ -94,7 +108,8 @@ socket.on("playerIsReady", function(id){
 socket.on("roundStart", function(){
   showReadyStatus = false;
   hideReadyBtn();
-  cardCreate("Le round va commencer sous peu...");
+  hideProgressBar();
+  insertLog("Le round va commencer sous peu...");
 });
 
 
@@ -119,4 +134,16 @@ socket.on("errorMSG", function(data){
 
 socket.on("drawing", function(data){
   drawData(data);
+});
+socket.on("clear", function(){
+  eraseData();
+});
+socket.on("chat", function(data){
+  insertChat(data);
+});
+socket.on("log", function(data){
+  insertLog(data);
+});
+socket.on("foundWord", function(data){
+  insertLog(players[data].pseudo+" a trouvé le mot !");
 });
